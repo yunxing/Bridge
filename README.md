@@ -1,7 +1,7 @@
 Bridge
 ======
 
-A project aimed at connecting renren.com (inside Great Fire Wall) and twitter.com(outside Great Fire Wall) through renren chat
+A project aims at connecting renren.com (inside Great Fire Wall) and twitter.com(outside Great Fire Wall) through renren chat
 
 prerequisites
 -------------
@@ -18,5 +18,14 @@ quick start
 5.      log in renren as yourself, find "Tuiqiao Shi"(He should be online now)
 6.      send "/help" to him
 7.      you should see some response from him now
+
+special thanks
+-------------
+Thanks for testing and contributing code!!:
+Yujing Zheng
+Daodao Zhang
+Guoxing Li
+Quanlin Huang
+
 
 

@@ -3,9 +3,6 @@
 
 """
     renren.py -- bridge between renren and twitter
-    special thanks to:
-    Yujing Zheng
-    Daodao Zhang
 """
 
 import sys
@@ -18,7 +15,7 @@ import time
 import sleekxmpp
 import json
 import urllib
-
+from sleekxmpp.xmlstream import ET, JID
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -26,6 +23,8 @@ sys.setdefaultencoding('utf8')
 #TODO: use redis for twitter subscription
 #import redis
 #redis_cli = redis.StrictRedis(host='localhost', port=6379, db=0)
+
+#TODO: remove hardcoded string into keyvalue pairs
 
 class SendMsgBot(sleekxmpp.ClientXMPP):
     def sendMessage(self, jid, msg):
@@ -41,13 +40,16 @@ class SendMsgBot(sleekxmpp.ClientXMPP):
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("failed_auth", self.failed)
         self.add_event_handler("message", self.onMessage)
+        self.roster_list={}
 
     def _send_help_msg(self, jid):
-        self.sendMessage(jid,u'\u5bf9\u6211\u4f7f\u7528'+
+        self.sendMessage(jid,u'\u5bf9\u6211\u53d1\u9001'+
                          u'/twitter <keyword>\u8fdb\u884c'+
                          u'twitter\u641c\u7d22' +
                          u',\u6bd4\u5982/twitter \u9648' +
-                         u'\u5149\u8bda, \u6216/twitter #freechen')
+                         u'\u5149\u8bda, \u6216/twitter #freechen'+
+                         u'\u3002\u9879\u76ee\u7b80\u4ecb\u8bf7' +
+                         u'\u770bhttps://github.com/Imbalism/Bridge')
 
     def _fetch_twitter(self, query):
         query = "http://search.twitter.com/search.json?q="+\
@@ -58,6 +60,11 @@ class SendMsgBot(sleekxmpp.ClientXMPP):
 
 
     def _handle_twitter_query(self, jid, query):
+        if query == "":
+            self.sendMessage(jid, u'\u8bf7\u8f93\u5165\u5173' +
+                             u'\u952e\u8bcd\uff0c\u5982' +
+                             u'/twitter \u9648\u5149\u8bda')
+            return
         print "User query:%s" % query
         try:
             replys = self._fetch_twitter(query)
@@ -77,7 +84,7 @@ class SendMsgBot(sleekxmpp.ClientXMPP):
             self.sendMessage(jid, r)
             #sleep because xiaonei's stupid implementation
             #continuous packets get lost
-            time.sleep(1.2)
+            time.sleep(2)
 
         self.sendMessage(jid, u'\u641c\u7d22\u7ed3\u675f')
 
@@ -86,28 +93,42 @@ class SendMsgBot(sleekxmpp.ClientXMPP):
 
     def onMessage(self, message):
         msg = message['body'].strip()
-        print "Get Msg:%s" % msg
         user = message['from'].user
+        print "From:%s:Get Msg:%s " % \
+            (self.roster_list[user], msg)
 
         m_f_dict = {"/twitter":self._handle_twitter_query,
                     "/help":self._handle_help}
 
         def forward(prefix, func, msg, jid):
+            msg = msg.strip()
             if msg.startswith(prefix):
                 msg = ' '.join(msg.split(' ')[1:])
                 func(jid, msg)
 
-        map(lambda x: forward(x, m_f_dict[x], msg, message['from']),
-            m_f_dict)
-
+        map(lambda (x, y): forward(x, y, msg, message['from']),
+            m_f_dict.items())
 
     def failed(self, event):
         print "Failed Login"
         self.disconnect()
 
+    def _handle_roster_result(self, iq):
+        """
+        We have to handle xml_str manually, because STUPID RENREN is not
+        compliant to the protocol
+        """
+        query = iq.xml.getchildren()[0]
+        for child in query.getchildren():
+            user = JID(child.attrib["jid"]).user
+            nick =child.attrib["name"]
+            self.roster_list[user] = nick
+
+
     def start(self, event):
         print "Logged in"
         self.send_presence()
+        self.get_roster(callback=self._handle_roster_result)
 
 if __name__ == '__main__':
     # Setup logging.
@@ -119,9 +140,10 @@ if __name__ == '__main__':
     #TODO: Add arguments support
 
     #Change the id to your renren id(the one in your homepage url)
-    jid = "463212100@talk.renren.com"
-    #jid = "240466769@talk.renren.com"
-    password = "123456test"
+    #jid = "463212100@talk.renren.com"
+    #password = "123456test"
+    jid = "240466769@talk.renren.com"
+    password = getpass.getpass()
 
     xmpp = SendMsgBot(jid, password)
 
