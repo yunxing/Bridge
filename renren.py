@@ -94,8 +94,11 @@ class SendMsgBot(sleekxmpp.ClientXMPP):
     def onMessage(self, message):
         msg = message['body'].strip()
         user = message['from'].user
-        print "From:%s:Get Msg:%s " % \
-            (self.roster_list[user], msg)
+        try:
+            print "From:%s:Get Msg:%s " % \
+                (self.roster_list[user], msg)
+        except:
+            pass
 
         m_f_dict = {"/twitter":self._handle_twitter_query,
                     "/help":self._handle_help}
@@ -137,7 +140,8 @@ if __name__ == '__main__':
 
     #TODO: ADD MSG LOGGING TO FILE BEFORE PUBLIC TESTING!!
 
-    #TODO: Add arguments support
+
+    #TODO: Add command line arguments support
 
     #Change the id to your renren id(the one in your homepage url)
     #jid = "463212100@talk.renren.com"

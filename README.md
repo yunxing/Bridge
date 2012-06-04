@@ -22,10 +22,22 @@ quick start
 special thanks
 -------------
 Thanks for testing and contributing code!!:
+
+Li Yao
+
 Yujing Zheng
+
 Daodao Zhang
+
 Guoxing Li
+
 Quanlin Huang
+
+Jialiang Jiang
+
+Junjie Wu
+
+Shanquan Li
 
 
 
