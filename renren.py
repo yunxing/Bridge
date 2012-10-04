@@ -141,13 +141,9 @@ if __name__ == '__main__':
     #TODO: ADD MSG LOGGING TO FILE BEFORE PUBLIC TESTING!!
 
 
-    #TODO: Add command line arguments support
-
     #Change the id to your renren id(the one in your homepage url)
-    #jid = "463212100@talk.renren.com"
-    #password = "123456test"
-    jid = "240466769@talk.renren.com"
-    password = getpass.getpass()
+    jid = "463212100@talk.renren.com"
+    password = "123456test"
 
     xmpp = SendMsgBot(jid, password)
 
